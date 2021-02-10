@@ -120,6 +120,8 @@ class GridTable(gridlibs.Grid):
     def SetColReadOnly(self, col):
         self._data.SetColReadOnly(col)
 
+
+# MENU BAR OPTIONS
 class EditMenu(wx.Menu):
     def __init__(self, parentFrame):
         super().__init__()
@@ -167,8 +169,8 @@ class FileMenu(wx.Menu):
         print("New Item !!")
 
     def OnOpen(self, event):
-        wildcard = "TXT files (*.txt)|*.txt"
-        dialog = wx.FileDialog(self.parentFrame, "Open Text Files", wildcard=wildcard,
+        wildcard = "CSV files (*.csv)|*.csv"
+        dialog = wx.FileDialog(self.parentFrame, "Open CSV Files", wildcard=wildcard,
                                 style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
         
         if dialog.ShowModal() == wx.ID_CANCEL:
