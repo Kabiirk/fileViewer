@@ -38,7 +38,6 @@ class MyFrame(wx.Frame):
         grid.SetColReadOnly(0)
         gridSizer.Add(grid, 1, wx.ALL|wx.EXPAND,5)
         mainSizer.Add(gridSizer, 0, wx.ALL|wx.EXPAND,5)
-
         self.SetSizer(mainSizer)
         mainSizer.Fit(self)
 
