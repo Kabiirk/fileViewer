@@ -2,6 +2,7 @@ import wx
 import wx.grid as gridlibs
 import csv
 import io
+import os
 
 # CSV Source = https://gist.github.com/armgilles/194bcff35001e7eb53a2a8b441e8b2c6
 
@@ -22,6 +23,18 @@ class MyFrame(wx.Frame):
 
     def OnInit(self):
         titlePanel = MyPanel(parent=self)
+
+        # Menu Bar
+        menuBar = wx.MenuBar()
+        # Add File Menu Item
+        fileMenu = FileMenu(parentFrame=self)
+        menuBar.Append(fileMenu, "&File")
+        # Add Edit Menu Item
+        editMenu = EditMenu(parentFrame=self)
+        menuBar.Append(editMenu, "&Edit")
+        # Intitialize Menu Bar
+        self.SetMenuBar(menuBar)
+        self.Center()
 
         # Control Layout
         mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -106,6 +119,84 @@ class GridTable(gridlibs.Grid):
 
     def SetColReadOnly(self, col):
         self._data.SetColReadOnly(col)
+
+class EditMenu(wx.Menu):
+    def __init__(self, parentFrame):
+        super().__init__()
+        self.parentFrame= parentFrame
+
+        self.OnInit()
+
+    def OnInit(self):
+        cutItem = wx.MenuItem(parentMenu=self, id=wx.ID_CUT, text="&Cut\tCtrl+X")
+        self.Append(cutItem)
+        
+        copyItem = wx.MenuItem(parentMenu=self, id=wx.ID_COPY, text="&Copy\tCtrl+C")
+        self.Append(copyItem)
+        
+        pasteItem = wx.MenuItem(parentMenu=self, id=wx.ID_PASTE, text="&Paste\tCtrl+V")
+        self.Append(pasteItem)
+
+
+
+class FileMenu(wx.Menu):
+    def __init__(self, parentFrame):
+        super().__init__()
+        self.OnInit()
+        self.parentFrame = parentFrame
+
+    def OnInit(self):
+        # Menu stuff
+        newItem = wx.MenuItem(parentMenu=self, id=wx.ID_NEW, text="&New\tCtrl+N")
+        self.Append(newItem)
+        self.Bind(event=wx.EVT_MENU, handler=self.OnNew, source=newItem)
+
+        openItem = wx.MenuItem(parentMenu=self, id=wx.ID_OPEN, text="&Open\tCtrl+O")
+        self.Append(openItem)
+        self.Bind(event=wx.EVT_MENU, handler=self.OnOpen, source=openItem)
+
+        saveItem = wx.MenuItem(parentMenu=self, id=wx.ID_SAVE, text="&Save\tCtrl+S")
+        self.Append(saveItem)
+        self.Bind(event=wx.EVT_MENU, handler=self.OnSave, source=saveItem)
+
+        quitItem = wx.MenuItem(parentMenu=self, id=wx.ID_EXIT, text="&Quit\tCtrl+Q")
+        self.Append(quitItem)
+        self.Bind(event=wx.EVT_MENU, handler=self.OnQuit, source=quitItem)
+
+    def OnNew(self, event):
+        print("New Item !!")
+
+    def OnOpen(self, event):
+        wildcard = "TXT files (*.txt)|*.txt"
+        dialog = wx.FileDialog(self.parentFrame, "Open Text Files", wildcard=wildcard,
+                                style=wx.FD_OPEN|wx.FD_FILE_MUST_EXIST)
+        
+        if dialog.ShowModal() == wx.ID_CANCEL:
+            return None
+        
+        path = dialog.GetPath()
+        if os.path.exists(path):
+            with open(path) as myfile:
+                for line in myfile:
+                    self.parentFrame.text.WriteText(line)
+                
+    def OnSave(self, event):
+        dialog = wx.FileDialog(self.parentFrame, message="Open Text Files", defaultFile="Untitled.txt",
+                                style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+        
+        if dialog.ShowModal() == wx.ID_CANCEL:
+            return None
+        
+        path = dialog.GetPath()
+        data = self.parentFrame.text.GetValue()
+        print(data)
+        data = data.split("\n")
+        with open(path, "w+") as myfile:
+            for line in data:
+                myfile.write(line+"\n")
+
+    def OnQuit(self, event):
+        self.parentFrame.Close()
 
 if __name__=="__main__":
     app = MyApp()
